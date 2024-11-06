@@ -1,0 +1,5 @@
+bofire>=0.0.14
+uvicorn
+fastapi
+pytest
+requests
