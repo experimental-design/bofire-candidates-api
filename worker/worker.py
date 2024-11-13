@@ -75,8 +75,8 @@ class Worker(BaseModel):
                     if isinstance(candidates, Exception):
                         raise candidates
                     else:
-                        logging.info(f"Proposal {proposal_id} processed successfully")
                         self.client.mark_processed(proposal_id, candidates=candidates)
+                        logging.info(f"Proposal {proposal_id} processed successfully")
                         break
         except Exception as e:
             logging.error(f"Error processing proposal {proposal_id}: {e}")
