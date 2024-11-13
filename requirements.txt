@@ -3,3 +3,4 @@ uvicorn
 fastapi
 pytest
 requests
+tinydb

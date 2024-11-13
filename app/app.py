@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routers.candidates import router as candidates_router
+from routers.proposals import router as proposals_router
 from routers.versions import router as versions_router
 from starlette.responses import RedirectResponse
 
@@ -14,3 +15,4 @@ async def redirect():
 
 app.include_router(candidates_router)
 app.include_router(versions_router)
+app.include_router(proposals_router)
