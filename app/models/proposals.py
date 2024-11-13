@@ -2,9 +2,10 @@ import datetime
 from enum import Enum
 from typing import Optional
 
+from bofire.data_models.base import BaseModel
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import AnyStrategy
-from pydantic import BaseModel, Field, model_validator
+from pydantic import Field, model_validator
 
 
 class ProposalRequest(BaseModel):
@@ -20,6 +21,7 @@ class ProposalRequest(BaseModel):
         if self.experiments is not None:
             self.strategy_data.domain.validate_experiments(self.experiments.to_pandas())
         if self.pendings is not None:
+            raise ValueError("Pendings must be None for proposals.")
             self.strategy_data.domain.validate_candidates(
                 self.pendings.to_pandas(), only_inputs=True
             )
@@ -46,5 +48,9 @@ class Proposal(ProposalRequest):
         if self.candidates is not None:
             self.strategy_data.domain.validate_candidates(
                 self.candidates.to_pandas(), only_inputs=True
+            )
+        if len(self.candidates.rows) != self.n_candidates:
+            raise ValueError(
+                f"Number of candidates ({len(self.candidates)}) does not match n_candidates ({self.n_candidates})."
             )
         return self

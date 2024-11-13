@@ -1,8 +1,9 @@
 from typing import Optional
 
+from bofire.data_models.base import BaseModel
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import AnyStrategy
-from pydantic import BaseModel, Field, model_validator
+from pydantic import Field, model_validator
 
 
 class CandidateRequest(BaseModel):
