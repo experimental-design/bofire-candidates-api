@@ -24,3 +24,9 @@ class Client:
 @fixture
 def client() -> Client:
     return Client(base_url=os.getenv("CANDIDATES_URL", "http://localhost:8000"))
+
+
+def pytest_sessionstart(session):
+    db_file = "db.json"
+    if os.path.exists(db_file):
+        os.remove(db_file)

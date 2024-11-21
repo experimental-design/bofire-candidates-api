@@ -49,8 +49,8 @@ class Proposal(ProposalRequest):
             self.strategy_data.domain.validate_candidates(
                 self.candidates.to_pandas(), only_inputs=True
             )
-        if len(self.candidates.rows) != self.n_candidates:
-            raise ValueError(
-                f"Number of candidates ({len(self.candidates)}) does not match n_candidates ({self.n_candidates})."
-            )
+            if len(self.candidates.rows) != self.n_candidates:
+                raise ValueError(
+                    f"Number of candidates ({len(self.candidates)}) does not match n_candidates ({self.n_candidates})."
+                )
         return self

@@ -59,7 +59,10 @@ def claim_proposal(  # works
         raise HTTPException(status_code=404, detail="No proposals to claim")
     proposal = Proposal(**dict_proposal[0])
     # proposal.state = StateEnum.CLAIMED
-    db.update({"state": StateEnum.CLAIMED}, doc_ids=[dict_proposal[0].doc_id])
+    db.update(
+        {"state": StateEnum.CLAIMED, "last_updated_at": datetime.datetime.now()},
+        doc_ids=[dict_proposal[0].doc_id],
+    )
     # TODO: id is wrong
     return (
         dict_proposal[0].doc_id,
@@ -137,17 +140,6 @@ def get_state(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> StateEnu
         raise HTTPException(status_code=404, detail="Proposal not found")
     proposal = Proposal(**dict_proposal)
     return proposal.state
-
-
-@router.get("/{proposal_id}/error_message", response_model=str)  # works
-def get_error_message(
-    proposal_id: int, db: Annotated[str, Depends(get_db)]
-) -> StateEnum:
-    dict_proposal = db.get(doc_id=proposal_id)
-    if dict_proposal is None:
-        raise HTTPException(status_code=404, detail="Proposal not found")
-    proposal = Proposal(**dict_proposal)
-    return proposal.error_message or "No error message"
 
 
 @router.get("", response_model=List[Proposal])

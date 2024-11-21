@@ -8,7 +8,7 @@ from pydantic import BaseModel, TypeAdapter, model_validator
 
 
 class Client(BaseModel):
-    url: str
+    url: str = "http://localhost:8000"
 
     @model_validator(mode="after")
     def validate_url(self):
