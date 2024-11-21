@@ -95,6 +95,13 @@ pip install -r requirements.txt
 uvicorn --app-dir app:app --reload
 ```
 
+If you also want to use the asynchronous worker based candidate generation, use the following snippet to start at least one worker:
+
+```bash
+python worker
+```
+
+
 ### Run unit tests
 
 ```bash
