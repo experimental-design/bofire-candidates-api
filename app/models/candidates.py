@@ -8,9 +8,8 @@ from pydantic import Field, model_validator
 
 class CandidateRequest(BaseModel):
     """Request model for generating candidates."""
-    strategy_data: AnyStrategy = Field(
-        description="BoFire strategy data"
-    )
+
+    strategy_data: AnyStrategy = Field(description="BoFire strategy data")
     n_candidates: int = Field(
         default=1, gt=0, description="Number of candidates to generate"
     )
@@ -29,9 +28,7 @@ class CandidateRequest(BaseModel):
             CandidateRequest: The validated request
         """
         if self.experiments is not None:
-            self.strategy_data.domain.validate_experiments(
-                self.experiments.to_pandas()
-            )
+            self.strategy_data.domain.validate_experiments(self.experiments.to_pandas())
         if self.pendings is not None:
             self.strategy_data.domain.validate_candidates(
                 self.pendings.to_pandas(), only_inputs=True
