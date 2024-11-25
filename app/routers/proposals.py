@@ -30,7 +30,7 @@ async def get_db():
 router = APIRouter(prefix="/proposals", tags=["proposals"])
 
 
-@router.post("/create", response_model=Proposal)
+@router.post("", response_model=Proposal)
 def create_proposal(
     proposal_request: ProposalRequest,
     db: Annotated[str, Depends(get_db)],
