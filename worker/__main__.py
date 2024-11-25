@@ -1,9 +1,7 @@
 import logging
 import os
 
-from client import Client
-
-from worker import Worker
+from worker import Client, Worker
 
 
 LOG_LEVELS = {

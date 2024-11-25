@@ -65,7 +65,6 @@ def claim_proposal(  # works
     if len(dict_proposal) == 0:
         raise HTTPException(status_code=404, detail="No proposals to claim")
     proposal = Proposal(**dict_proposal[0])
-    # proposal.state = StateEnum.CLAIMED
     db.update(
         {"state": StateEnum.CLAIMED, "last_updated_at": datetime.datetime.now()},
         doc_ids=[dict_proposal[0].doc_id],
