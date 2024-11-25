@@ -33,7 +33,7 @@ router = APIRouter(prefix="/proposals", tags=["proposals"])
 @router.post("", response_model=Proposal)
 def create_proposal(
     proposal_request: ProposalRequest,
-    db: Annotated[str, Depends(get_db)],
+    db: Annotated[str, Depends(get_db)],  # type: ignore
 ) -> Proposal:
     """Creates a proposal for candidates.
 
@@ -59,7 +59,7 @@ def create_proposal(
     ],
 )
 def claim_proposal(  # works
-    db: Annotated[str, Depends(get_db)],
+    db: Annotated[str, Depends(get_db)],  # type: ignore
 ) -> Tuple[int, AnyStrategy, int, Optional[Experiments], Optional[Candidates]]:
     dict_proposal = db.search(Query().state == StateEnum.CREATED)
     if len(dict_proposal) == 0:
@@ -79,8 +79,8 @@ def claim_proposal(  # works
     )
 
 
-@router.get("/{proposal_id}", response_model=Proposal)  # works
-def get_proposal(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> Proposal:
+@router.get("/{proposal_id}", response_model=Proposal)
+def get_proposal(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> Proposal:  # type: ignore
     dict_proposal = db.get(doc_id=proposal_id)
     if dict_proposal is None:
         raise HTTPException(status_code=404, detail="Proposal not found")
@@ -90,7 +90,7 @@ def get_proposal(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> Propo
 
 
 @router.get("/{proposal_id}/candidates", response_model=Candidates)
-def get_candidates(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> Candidates:
+def get_candidates(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> Candidates:  # type: ignore
     dict_proposal = db.get(doc_id=proposal_id)
     if dict_proposal is None:
         raise HTTPException(status_code=404, detail="Proposal not found")
@@ -104,7 +104,7 @@ def get_candidates(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> Can
 def mark_processed(
     proposal_id: int,
     candidates: Candidates,
-    db: Annotated[str, Depends(get_db)],
+    db: Annotated[str, Depends(get_db)],  # type: ignore
 ) -> StateEnum:
     dict_proposal = db.get(doc_id=proposal_id)
     if dict_proposal is None:
@@ -126,7 +126,7 @@ def mark_processed(
 def mark_failed(
     proposal_id: int,
     error_message: dict[str, str],
-    db: Annotated[str, Depends(get_db)],
+    db: Annotated[str, Depends(get_db)],  # type: ignore
 ) -> StateEnum:
     dict_proposal = db.get(doc_id=proposal_id)
     if dict_proposal is None:
@@ -140,7 +140,7 @@ def mark_failed(
 
 
 @router.get("/{proposal_id}/state", response_model=StateEnum)  # works
-def get_state(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> StateEnum:
+def get_state(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> StateEnum:  # type: ignore
     dict_proposal = db.get(doc_id=proposal_id)
     if dict_proposal is None:
         raise HTTPException(status_code=404, detail="Proposal not found")
@@ -149,5 +149,5 @@ def get_state(proposal_id: int, db: Annotated[str, Depends(get_db)]) -> StateEnu
 
 
 @router.get("", response_model=List[Proposal])
-def get_proposals(db: Annotated[str, Depends(get_db)]) -> List[Proposal]:
+def get_proposals(db: Annotated[str, Depends(get_db)]) -> List[Proposal]:  # type: ignore
     return [Proposal(**{**d, **{"id": d.doc_id}}) for d in db.all()]
