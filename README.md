@@ -87,11 +87,11 @@ The following snippet shows how to use the worker based candidate generation usi
 ``` python
 import time
 
-# create the proposal in the database 
+# create the proposal in the database
 response = requests.post(url=f"{URL}/proposals", json=payload.model_dump(), headers=HEADERS)
 id = json.loads(response.content)["id"]
 
-# poll the state of the proposal 
+# poll the state of the proposal
 def get_state(id:int):
     return requests.get(url=f"{URL}proposals/{id}/state", headers=HEADERS).json()
 
