@@ -14,6 +14,11 @@ db = None
 
 
 async def get_db():
+    """Get the database connection.
+
+    Yields:
+        TinyDB: The database connection.
+    """
     # todo: handle chaching
     db = TinyDB(DBPATH, default=str)
     try:
@@ -25,21 +30,23 @@ async def get_db():
 router = APIRouter(prefix="/proposals", tags=["proposals"])
 
 
-@router.post("", response_model=Proposal)  # works
+@router.post("", response_model=Proposal)
 def create_proposal(
     proposal_request: ProposalRequest,
     db: Annotated[str, Depends(get_db)],
 ) -> Proposal:
-    proposal = Proposal(
-        **{
-            **{
-                "created_at": datetime.datetime.now(),
-                "last_updated_at": datetime.datetime.now(),
-                "state": StateEnum.CREATED,
-            },
-            **proposal_request.model_dump(),
-        }
-    )
+    """Creates a proposal for candidates.
+
+    Args:
+        proposal_request (ProposalRequest): The original request for the proposal.
+        db (Annotated[str, Depends): The database to store the proposal.
+
+    Returns:
+        Proposal: The created proposal.
+    """
+    proposal_request_data = proposal_request.model_dump()
+    proposal = Proposal(**proposal_request_data)
+
     id = db.insert(proposal.model_dump())
     proposal.id = id
     return proposal
