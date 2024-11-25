@@ -4,13 +4,15 @@
 [![Lint](https://github.com/experimental-design/bofire-candidates-api/workflows/Lint/badge.svg)](https://github.com/experimental-design/bofire-candidates-api/actions?query=workflow%3ALint)
 
 
-An **experimental** FastAPI based application that can be used to generate candidates via https using BoFire. It makes use of the pydantic `data_models` in BoFire, which allows for an easy fastAPI integration include full Swagger documentation which can be found when visiting `/docs` of the running web application.
+An **experimental** FastAPI based application that can be used to generate candidates via http(s) using BoFire. It makes use of pydantic `data_models` in BoFire, which allows for an easy fastAPI integration including Swagger based documentation which can be found when visiting `/docs` of the running web application.
 
-Currently candidates are generated directly at request which can lead to http timeouts and other problems. Future versions should include an asynchronous worker based scenario for generating candidates.
+Candidates can be generated via two different ways, either directly at request which can lead to http timeouts or using an asynchronous worker based procedure.
 
 ## Usage
 
-The following snippet shows how to use the candidates API via Pythons `request` module.
+### Direct Candidate Generation
+
+In the following it is shown how to generate candidates in the direct way using a post request.
 
 ```python
 import json
@@ -78,6 +80,35 @@ df_candidates =Candidates(**json.loads(response.content)).to_pandas()
 
 ```
 
+### Worker Based Candidate Generation
+
+The following snippet shows how to use the worker based candidate generation using the same payload as above. The API is storing all necessary information regarding the proposals in a [`TinyDB`](https://tinydb.readthedocs.io/en/latest/) database. **Note that concurrent worker access using multiple users has not been tested yet.**
+
+``` python
+import time
+
+# create the proposal in the database 
+response = requests.post(url=f"{URL}/proposals", json=payload.model_dump(), headers=HEADERS)
+id = json.loads(response.content)["id"]
+
+# poll the state of the proposal 
+def get_state(id:int):
+    return requests.get(url=f"{URL}proposals/{id}/state", headers=HEADERS).json()
+
+state = get_state(id)
+
+while state in ["CREATED", "CLAIMED"]:
+    state = get_state(id)
+    time.sleep(5)
+
+# get the candidates when the worker is finished
+if state=="FINISHED":
+    response = requests.get(url=f"{URL}proposals/{id}/candidates", headers=HEADERS)
+    candidates = Candidates(**response.json()).to_pandas()
+else:
+    print(state) # candidate generation was not successful.
+```
+
 
 ## Installation
 
@@ -94,6 +125,13 @@ pip install -r requirements.txt
 ```bash
 uvicorn --app-dir app:app --reload
 ```
+
+If you also want to use the asynchronous worker based candidate generation, use the following snippet to start at least one worker:
+
+```bash
+python worker
+```
+
 
 ### Run unit tests
 

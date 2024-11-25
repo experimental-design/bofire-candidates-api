@@ -1,5 +1,6 @@
-bofire[optimization]>=0.0.14
+bofire[optimization]>=0.0.15
 uvicorn
 fastapi
 pytest
 requests
+tinydb
