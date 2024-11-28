@@ -123,7 +123,7 @@ pip install -r requirements.txt
 
 ### Run
 ```bash
-uvicorn --app-dir app:app --reload
+uvicorn --app-dir=app app:app --reload
 ```
 
 If you also want to use the asynchronous worker based candidate generation, use the following snippet to start at least one worker:
