@@ -1,6 +1,7 @@
 import json
 
 from bofire.benchmarks.api import DTLZ2, Himmelblau
+from bofire.data_models.candidates_api.api import CandidateRequest
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import (
     AlwaysTrueCondition,
@@ -11,7 +12,6 @@ from bofire.data_models.strategies.api import (
     StepwiseStrategy,
 )
 
-from app.models.candidates import CandidateRequest
 from tests.conftest import Client
 
 

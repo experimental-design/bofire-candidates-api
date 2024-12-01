@@ -1,10 +1,10 @@
 import json
 
 from bofire.benchmarks.api import Himmelblau
+from bofire.data_models.candidates_api.api import Proposal, ProposalRequest
 from bofire.data_models.dataframes.api import Candidates
 from bofire.data_models.strategies.api import RandomStrategy
 
-from app.models.proposals import Proposal, ProposalRequest
 from tests.conftest import Client
 
 

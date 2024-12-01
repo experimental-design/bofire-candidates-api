@@ -2,10 +2,10 @@ import json
 
 import pytest
 from bofire.benchmarks.api import Himmelblau
+from bofire.data_models.candidates_api.api import Proposal, ProposalRequest
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import RandomStrategy, SoboStrategy
 
-from app.models.proposals import Proposal, ProposalRequest
 from tests.conftest import Client
 from worker.worker import Client as WorkerClient
 from worker.worker import Worker

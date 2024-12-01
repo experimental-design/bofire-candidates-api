@@ -2,11 +2,14 @@ import datetime
 
 import pytest
 from bofire.benchmarks.api import DTLZ2, Himmelblau
+from bofire.data_models.candidates_api.api import (
+    CandidateRequest,
+    Proposal,
+    ProposalRequest,
+    StateEnum,
+)
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import MoboStrategy, SoboStrategy
-
-from app.models.candidates import CandidateRequest
-from app.models.proposals import Proposal, ProposalRequest, StateEnum
 
 
 @pytest.mark.parametrize("data_model", [CandidateRequest, ProposalRequest])

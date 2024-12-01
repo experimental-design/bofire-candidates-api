@@ -1,9 +1,9 @@
 import datetime
 from typing import Annotated, List
 
+from bofire.data_models.candidates_api.api import Proposal, ProposalRequest, StateEnum
 from bofire.data_models.dataframes.api import Candidates
 from fastapi import APIRouter, Depends, HTTPException
-from models.proposals import Proposal, ProposalRequest, StateEnum
 from tinydb import Query, TinyDB
 
 
@@ -11,6 +11,8 @@ router = APIRouter(prefix="/proposals", tags=["proposals"])
 
 
 DBPATH = "db.json"
+
+db = None
 
 
 async def get_db():
@@ -84,6 +86,31 @@ def get_proposals(db: Annotated[TinyDB, Depends(get_db)]) -> List[Proposal]:  # 
     return [Proposal(**d) for d in db.all()]
 
 
+@router.get("/claim", response_model=Proposal)
+def claim_proposal(db: Annotated[TinyDB, Depends(get_db)]) -> Proposal:  # type: ignore
+    """Claims the first proposal in the database which is in the state CREATED.
+
+    Args:
+        db (Annotated[TinyDB, Depends]): The database to store the proposal.
+
+    Raises:
+        HTTPException: Status code 404 if no proposals are available to claim.
+
+    Returns:
+        Proposal: The claimed proposal.
+    """
+    query_list = db.search(Query().state == StateEnum.CREATED)
+    if len(query_list) == 0:
+        raise HTTPException(status_code=404, detail="No proposals to claim")
+    proposal = Proposal(**query_list[0])
+    db.update(
+        {"state": StateEnum.CLAIMED, "last_updated_at": datetime.datetime.now()},
+        doc_ids=[proposal.id],
+    )
+    updated_proposal = Proposal(**db.get(doc_id=proposal.id))
+    return updated_proposal
+
+
 @router.get("/{proposal_id}", response_model=Proposal)
 def get_proposal(proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]) -> Proposal:  # type: ignore
     """Get a proposal by its ID.
@@ -95,6 +122,7 @@ def get_proposal(proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]) -> Pr
     Returns:
         Proposal: The requested proposal.
     """
+    print("HELLO WORLD")
     proposal = get_proposal_from_db(proposal_id, db)
     return proposal
 
@@ -135,32 +163,6 @@ def get_state(proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]) -> State
     """
     proposal = get_proposal_from_db(proposal_id, db)
     return proposal.state
-
-
-@router.get("/claim", response_model=Proposal)
-def claim_proposal(db: Annotated[TinyDB, Depends(get_db)]) -> Proposal:  # type: ignore
-    """Claims the first proposal in the database which is in the state CREATED.
-
-    Args:
-        db (Annotated[TinyDB, Depends]): The database to store the proposal.
-
-    Raises:
-        HTTPException: Status code 404 if no proposals are available to claim.
-
-    Returns:
-        Proposal: The claimed proposal.
-    """
-    query_list = db.search(Query().state == StateEnum.CREATED)
-    print(query_list)
-    if len(query_list) == 0:
-        raise HTTPException(status_code=404, detail="No proposals to claim")
-    proposal = Proposal(**query_list[0])
-    db.update(
-        {"state": StateEnum.CLAIMED, "last_updated_at": datetime.datetime.now()},
-        doc_ids=[proposal.id],
-    )
-    updated_proposal = Proposal(**db.get(doc_id=proposal.id))
-    return updated_proposal
 
 
 @router.post("/{proposal_id}/mark_processed", response_model=StateEnum)
