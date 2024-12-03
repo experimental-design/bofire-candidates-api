@@ -1,7 +1,8 @@
 import bofire.strategies.api as strategies
-from bofire.data_models.candidates_api.api import CandidateRequest
 from bofire.data_models.dataframes.api import Candidates
 from fastapi import APIRouter, HTTPException
+
+from routers.api_data_models import CandidatesRequest
 
 
 router = APIRouter(prefix="", tags=["candidates"])
@@ -27,12 +28,12 @@ def handle_ask_exceptions(e: Exception) -> None:
 
 @router.post("/candidates/generate", response_model=Candidates)
 def generate(
-    candidate_request: CandidateRequest,
+    candidate_request: CandidatesRequest,
 ) -> Candidates:
     """Generate candidates using the specified strategy.
 
     Args:
-        candidate_request (CandidateRequest): Request model for generating candidates.
+        candidate_request (CandidatesRequest): Request model for generating candidates.
 
     Returns:
         Candidates: The generated candidates.

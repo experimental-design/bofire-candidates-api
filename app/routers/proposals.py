@@ -1,10 +1,15 @@
 import datetime
 from typing import Annotated, List
 
-from bofire.data_models.candidates_api.api import Proposal, ProposalRequest, StateEnum
 from bofire.data_models.dataframes.api import Candidates
 from fastapi import APIRouter, Depends, HTTPException
 from tinydb import Query, TinyDB
+
+from routers.api_data_models import (
+    CandidatesProposal,
+    CandidatesRequest,
+    ProposalStateEnum,
+)
 
 
 router = APIRouter(prefix="/proposals", tags=["proposals"])
@@ -31,7 +36,7 @@ async def get_db():
 
 def get_proposal_from_db(
     proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]
-) -> Proposal:  # type: ignore
+) -> CandidatesProposal:  # type: ignore
     """Get a proposal from the database by its ID.
 
     Args:
@@ -42,52 +47,52 @@ def get_proposal_from_db(
         HTTPException: Status code 404 if the proposal is not found.
 
     Returns:
-        Proposal: The requested proposal.
+        CandidatesProposal: The requested proposal.
     """
     dict_proposal = db.get(doc_id=proposal_id)
     if dict_proposal is None:
         raise HTTPException(status_code=404, detail="Proposal not found")
-    return Proposal(**dict_proposal)
+    return CandidatesProposal(**dict_proposal)
 
 
-@router.post("", response_model=Proposal)
+@router.post("", response_model=CandidatesProposal)
 def create_proposal(
-    proposal_request: ProposalRequest,
+    proposal_request: CandidatesRequest,
     db: Annotated[TinyDB, Depends(get_db)],  # type: ignore
-) -> Proposal:
+) -> CandidatesProposal:
     """Creates a proposal for candidates.
 
     Args:
-        proposal_request (ProposalRequest): The original request for the proposal.
+        proposal_request (CandidatesRequest): The original request for the proposal.
         db (Annotated[TinyDB, Depends]): The database to store the proposal.
 
     Returns:
-        Proposal: The created proposal.
+        CandidatesProposal: The created proposal.
     """
-    proposal = Proposal(**proposal_request.model_dump())
+    proposal = CandidatesProposal(**proposal_request.model_dump())
     id = db.insert(proposal.model_dump())
 
     # Update the db entry and proposal with the new ID
     db.update({"id": id}, doc_ids=[id])
-    updated_proposal = Proposal(**db.get(doc_id=id))
+    updated_proposal = CandidatesProposal(**db.get(doc_id=id))
     return updated_proposal
 
 
-@router.get("", response_model=List[Proposal])
-def get_proposals(db: Annotated[TinyDB, Depends(get_db)]) -> List[Proposal]:  # type: ignore
+@router.get("", response_model=List[CandidatesProposal])
+def get_proposals(db: Annotated[TinyDB, Depends(get_db)]) -> List[CandidatesProposal]:  # type: ignore
     """Get all proposals from the database.
 
     Args:
         db (Annotated[TinyDB, Depends]): The database with the stored proposals.
 
     Returns:
-        List[Proposal]: A list of all proposals.
+        List[CandidatesProposal]: A list of all proposals.
     """
-    return [Proposal(**d) for d in db.all()]
+    return [CandidatesProposal(**d) for d in db.all()]
 
 
-@router.get("/claim", response_model=Proposal)
-def claim_proposal(db: Annotated[TinyDB, Depends(get_db)]) -> Proposal:  # type: ignore
+@router.get("/claim", response_model=CandidatesProposal)
+def claim_proposal(db: Annotated[TinyDB, Depends(get_db)]) -> CandidatesProposal:  # type: ignore
     """Claims the first proposal in the database which is in the state CREATED.
 
     Args:
@@ -97,22 +102,27 @@ def claim_proposal(db: Annotated[TinyDB, Depends(get_db)]) -> Proposal:  # type:
         HTTPException: Status code 404 if no proposals are available to claim.
 
     Returns:
-        Proposal: The claimed proposal.
+        CandidatesProposal: The claimed proposal.
     """
-    query_list = db.search(Query().state == StateEnum.CREATED)
+    query_list = db.search(Query().state == ProposalStateEnum.CREATED)
     if len(query_list) == 0:
         raise HTTPException(status_code=404, detail="No proposals to claim")
-    proposal = Proposal(**query_list[0])
+    proposal = CandidatesProposal(**query_list[0])
     db.update(
-        {"state": StateEnum.CLAIMED, "last_updated_at": datetime.datetime.now()},
+        {
+            "state": ProposalStateEnum.CLAIMED,
+            "last_updated_at": datetime.datetime.now(),
+        },
         doc_ids=[proposal.id],
     )
-    updated_proposal = Proposal(**db.get(doc_id=proposal.id))
+    updated_proposal = CandidatesProposal(**db.get(doc_id=proposal.id))
     return updated_proposal
 
 
-@router.get("/{proposal_id}", response_model=Proposal)
-def get_proposal(proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]) -> Proposal:  # type: ignore
+@router.get("/{proposal_id}", response_model=CandidatesProposal)
+def get_proposal(
+    proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]
+) -> CandidatesProposal:  # type: ignore
     """Get a proposal by its ID.
 
     Args:
@@ -120,9 +130,8 @@ def get_proposal(proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]) -> Pr
         db (Annotated[TinyDB, Depends]): The database with the stored proposals.
 
     Returns:
-        Proposal: The requested proposal.
+        CandidatesProposal: The requested proposal.
     """
-    print("HELLO WORLD")
     proposal = get_proposal_from_db(proposal_id, db)
     return proposal
 
@@ -150,8 +159,10 @@ def get_candidates(
     return proposal.candidates
 
 
-@router.get("/{proposal_id}/state", response_model=StateEnum)
-def get_state(proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]) -> StateEnum:  # type: ignore
+@router.get("/{proposal_id}/state", response_model=ProposalStateEnum)
+def get_state(
+    proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]
+) -> ProposalStateEnum:  # type: ignore
     """Get the state of a proposal by its ID.
 
     Args:
@@ -159,18 +170,18 @@ def get_state(proposal_id: int, db: Annotated[TinyDB, Depends(get_db)]) -> State
         db (Annotated[TinyDB, Depends]): The database with the stored proposals.
 
     Returns:
-        StateEnum: The state of the proposal.
+        ProposalStateEnum: The state of the proposal.
     """
     proposal = get_proposal_from_db(proposal_id, db)
     return proposal.state
 
 
-@router.post("/{proposal_id}/mark_processed", response_model=StateEnum)
+@router.post("/{proposal_id}/mark_processed", response_model=ProposalStateEnum)
 def mark_processed(
     proposal_id: int,
     candidates: Candidates,
     db: Annotated[TinyDB, Depends(get_db)],  # type: ignore
-) -> StateEnum:
+) -> ProposalStateEnum:
     """Marks a proposal as processed and stores the candidates.
 
     Args:
@@ -182,7 +193,7 @@ def mark_processed(
         HTTPException: Status code 400 if the number of candidates does not match the expected number.
 
     Returns:
-        StateEnum: The state of the proposal after marking it as processed.
+        ProposalStateEnum: The state of the proposal after marking it as processed.
     """
     proposal = get_proposal_from_db(proposal_id, db)
 
@@ -194,17 +205,17 @@ def mark_processed(
 
     proposal.candidates = candidates
     proposal.last_updated_at = datetime.datetime.now()
-    proposal.state = StateEnum.FINISHED
+    proposal.state = ProposalStateEnum.FINISHED
     db.update(proposal.model_dump(), doc_ids=[proposal_id])
     return proposal.state
 
 
-@router.post("/{proposal_id}/mark_failed", response_model=StateEnum)
+@router.post("/{proposal_id}/mark_failed", response_model=ProposalStateEnum)
 def mark_failed(
     proposal_id: int,
     error_message: dict[str, str],
     db: Annotated[TinyDB, Depends(get_db)],  # type: ignore
-) -> StateEnum:
+) -> ProposalStateEnum:
     """Marks a proposal as failed and stores the error message.
 
     Args:
@@ -213,12 +224,13 @@ def mark_failed(
         db (Annotated[TinyDB, Depends]): The database with the stored proposals.
 
     Returns:
-        StateEnum: The state of the proposal after marking it as failed.
+        ProposalStateEnum: The state of the proposal after marking it as failed.
     """
+    print("HELLO")
     proposal = get_proposal_from_db(proposal_id, db)
 
     proposal.last_updated_at = datetime.datetime.now()
-    proposal.state = StateEnum.FAILED
+    proposal.state = ProposalStateEnum.FAILED
     proposal.error_message = error_message["msg"]
     db.update(proposal.model_dump(), doc_ids=[proposal_id])
     return proposal.state
