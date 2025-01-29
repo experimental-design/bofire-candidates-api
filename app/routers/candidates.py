@@ -42,12 +42,12 @@ def generate_candidates(
             raise HTTPException(status_code=404, detail=str(e))
         if i_start < n_restarts:
             return generate_candidates(
-                strategy_data,
-                n_candidates,
-                experiments,
-                pendings,
-                i_start + 1,
-                n_restarts,
+                strategy_data=strategy_data,
+                n_candidates=n_candidates,
+                experiments=experiments,
+                pendings=pendings,
+                i_start=i_start + 1,
+                n_restarts=n_restarts,
             )
         else:
             raise HTTPException(
@@ -70,10 +70,10 @@ def generate(
         Candidates: The generated candidates.
     """
     return generate_candidates(
-        candidate_request.strategy_data,
-        candidate_request.n_candidates,
-        candidate_request.experiments,
-        candidate_request.pendings,
-        candidate_request.n_restarts,
+        strategy_data=candidate_request.strategy_data,
+        n_candidates=candidate_request.n_candidates,
+        experiments=candidate_request.experiments,
+        pendings=candidate_request.pendings,
+        n_restarts=candidate_request.n_restarts,
         i_start=0,
     )
