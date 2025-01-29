@@ -1,5 +1,8 @@
+from typing import Optional
+
 import bofire.strategies.api as strategies
-from bofire.data_models.dataframes.api import Candidates
+from bofire.data_models.dataframes.api import Candidates, Experiments
+from bofire.data_models.strategies.api import AnyStrategy
 from fastapi import APIRouter, HTTPException
 from models.candidates import CandidateRequest
 
@@ -7,22 +10,51 @@ from models.candidates import CandidateRequest
 router = APIRouter(prefix="", tags=["candidates"])
 
 
-def handle_ask_exceptions(e: Exception) -> None:
-    """Handle exceptions raised by the strategy ask method.
+def generate_candidates(
+    strategy_data: AnyStrategy,
+    n_candidates: int,
+    experiments: Optional[Experiments],
+    pendings: Optional[Candidates],
+    i_start: int = 0,
+    n_restarts: int = 1,
+) -> Candidates:
+    """Generate candidates using the specified strategy.
 
     Args:
-        e (Exception): Exception to handle.
+        strategy_data (AnyStrategy): BoFire strategy data.
+        n_candidates (int): Number of candidates to generate.
+        experiments (Optional[Experiments]): Experiments to provide to the strategy.
+        pendings (Optional[Candidates]): Candidates that are pending to be executed.
+        n_restarts_on_failure (int): Number of restarts for the strategy on failure.
 
-    Raises:
-        HTTPException: Status code 404 if not enough experiments are available to execute the strategy.
-        HTTPException: Status code 500 if other server error occurs.
+    Returns:
+        Candidates: The generated candidates.
     """
-    if str(e) == "Not enough experiments available to execute the strategy.":
-        raise HTTPException(status_code=404, detail=str(e))
-    else:
-        raise HTTPException(
-            status_code=500, detail=f"A server error occurred. Details: {e}"
-        )
+    strategy = strategies.map(strategy_data)
+
+    if experiments is not None:
+        strategy.tell(experiments.to_pandas())
+
+    try:
+        df_candidates = strategy.ask(n_candidates)
+    except Exception as e:
+        if str(e) == "Not enough experiments available to execute the strategy.":
+            raise HTTPException(status_code=404, detail=str(e))
+        if i_start < n_restarts:
+            return generate_candidates(
+                strategy_data=strategy_data,
+                n_candidates=n_candidates,
+                experiments=experiments,
+                pendings=pendings,
+                i_start=i_start + 1,
+                n_restarts=n_restarts,
+            )
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=f"An error occurred. Details: {e}",
+            )
+    return Candidates.from_pandas(df_candidates, strategy_data.domain)
 
 
 @router.post("/candidates/generate", response_model=Candidates)
@@ -37,15 +69,11 @@ def generate(
     Returns:
         Candidates: The generated candidates.
     """
-    strategy = strategies.map(candidate_request.strategy_data)
-
-    if candidate_request.experiments is not None:
-        strategy.tell(candidate_request.experiments.to_pandas())
-
-    try:
-        df_candidates = strategy.ask(candidate_request.n_candidates)
-    except ValueError as e:
-        handle_ask_exceptions(e)
-        pass
-
-    return Candidates.from_pandas(df_candidates, candidate_request.strategy_data.domain)
+    return generate_candidates(
+        strategy_data=candidate_request.strategy_data,
+        n_candidates=candidate_request.n_candidates,
+        experiments=candidate_request.experiments,
+        pendings=candidate_request.pendings,
+        n_restarts=candidate_request.n_restarts,
+        i_start=0,
+    )
