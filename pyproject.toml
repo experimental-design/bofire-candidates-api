@@ -1,0 +1,14 @@
+[project]
+name = "bofire-candidates-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "bofire[optimization]>=0.0.15",
+    "fastapi>=0.116.1",
+    "pytest>=8.4.1",
+    "requests>=2.32.4",
+    "tinydb>=4.8.2",
+    "uvicorn>=0.35.0",
+]

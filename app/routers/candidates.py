@@ -4,7 +4,7 @@ import bofire.strategies.api as strategies
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import AnyStrategy
 from fastapi import APIRouter, HTTPException
-from models.candidates import CandidateRequest
+from app.models.candidates import CandidateRequest
 
 
 router = APIRouter(prefix="", tags=["candidates"])

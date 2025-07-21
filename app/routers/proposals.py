@@ -4,7 +4,7 @@ from typing import Annotated, List, Optional, Tuple
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import AnyStrategy
 from fastapi import APIRouter, Depends, HTTPException
-from models.proposals import Proposal, ProposalRequest, StateEnum
+from app.models.proposals import Proposal, ProposalRequest, StateEnum
 from tinydb import Query, TinyDB
 
 
