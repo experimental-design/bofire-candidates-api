@@ -1,8 +1,9 @@
 import bofire
 from fastapi import FastAPI
+from starlette.responses import RedirectResponse
+
 from app.routers.candidates import router as candidates_router
 from app.routers.proposals import router as proposals_router
-from starlette.responses import RedirectResponse
 
 
 APP_VERSION = "0.0.1"

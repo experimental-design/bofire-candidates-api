@@ -3,7 +3,7 @@ name = "bofire-candidates-api"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "bofire[optimization]>=0.0.15",
     "fastapi>=0.116.1",
