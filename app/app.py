@@ -1,3 +1,10 @@
+import os
+import sys
+
+# This is a workaround to ensure that the module can be imported correctly
+# Add the directory containing your module to sys.path
+sys.path.append(os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
+
 import bofire
 from fastapi import FastAPI
 from routers.candidates import router as candidates_router
