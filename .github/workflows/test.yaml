@@ -28,7 +28,7 @@ jobs:
           enable-cache: true
 
       - name: Install Dependencies
-        run: uv pip install -r <(uv pip compile --no-dev pyproject.toml) --system
+        run: uv pip install -r requirements.txt --system
 
       - name: Run tests
         run: |
