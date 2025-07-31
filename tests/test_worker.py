@@ -91,7 +91,7 @@ def test_worker(client: Client):
     )
     assert (
         proposal.error_message
-        == "Not enough experiments available to execute the strategy."
+        == "404: Not enough experiments available to execute the strategy."
     )
 
     # successful sobo

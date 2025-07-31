@@ -2,7 +2,7 @@ import json
 import logging
 import multiprocessing as mp
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, Type
 
 import bofire.strategies.api as strategies
 import requests
@@ -10,6 +10,7 @@ from bofire.data_models.dataframes.api import Candidates
 from pydantic import BaseModel, model_validator
 
 from bofire_candidates_api.api_data_models import CandidatesProposal, ProposalStateEnum
+from bofire_candidates_api.routers.candidates import generate_candidates
 
 
 class Client(BaseModel):
@@ -143,21 +144,17 @@ class Worker(BaseModel):
 
     @staticmethod
     def process_proposal(
-        proposal: CandidatesProposal,
+        candidate_request: Type[CandidatesProposal],
         conn_obj: "mp.connection.Connection",
     ):
-        """Process a proposal.
+        """ Process a proposal by generating candidates.
 
         Args:
-            proposal (CandidatesProposal): The proposal to process.
+            candidate_request (Type[CandidatesProposal]): The proposal to process.
             conn_obj (mp.connection.Connection): The connection object to send the results to.
         """
         try:
-            strategy = strategies.map(proposal.strategy_data)
-            if proposal.experiments is not None:
-                strategy.tell(proposal.experiments.to_pandas())
-            df_candidates = strategy.ask(proposal.n_candidates)
-            msg = Candidates.from_pandas(df_candidates, proposal.strategy_data.domain)
+            msg = generate_candidates(candidate_request)
         except Exception as e:
             msg = Exception(str(e))
         finally:
