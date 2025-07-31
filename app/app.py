@@ -1,7 +1,7 @@
 import bofire
 from fastapi import FastAPI
-from routers.candidates import router as candidates_router
-from routers.proposals import router as proposals_router
+from bofire_candidates_api.routers.candidates import router as candidates_router
+from bofire_candidates_api.routers.proposals import router as proposals_router
 from starlette.responses import RedirectResponse
 
 

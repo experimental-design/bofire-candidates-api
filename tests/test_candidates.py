@@ -11,7 +11,7 @@ from bofire.data_models.strategies.api import (
     StepwiseStrategy,
 )
 
-from api_data_models import CandidatesRequest
+from bofire_candidates_api.api_data_models import CandidatesRequest
 from tests.conftest import Client
 
 

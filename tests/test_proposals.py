@@ -4,7 +4,7 @@ from bofire.benchmarks.api import Himmelblau
 from bofire.data_models.dataframes.api import Candidates
 from bofire.data_models.strategies.api import RandomStrategy
 
-from api_data_models import CandidatesProposal, CandidatesRequest
+from bofire_candidates_api.api_data_models import CandidatesProposal, CandidatesRequest
 from tests.conftest import Client
 
 

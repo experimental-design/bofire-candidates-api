@@ -9,7 +9,7 @@ import requests
 from bofire.data_models.dataframes.api import Candidates
 from pydantic import BaseModel, model_validator
 
-from api_data_models import CandidatesProposal, ProposalStateEnum
+from bofire_candidates_api.api_data_models import CandidatesProposal, ProposalStateEnum
 
 
 class Client(BaseModel):
