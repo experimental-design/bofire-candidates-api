@@ -21,6 +21,9 @@ class CandidatesRequest(BaseModel):
     pendings: Optional[Candidates] = Field(
         default=None, description="Candidates that are pending to be executed"
     )
+    n_restarts: int = Field(
+        default=1, ge=0, description="Number of restarts for the strategy on failure."
+    )
 
     @model_validator(mode="after")
     def validate_experiments(self):
