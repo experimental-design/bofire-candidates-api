@@ -28,7 +28,7 @@ jobs:
           enable-cache: true
 
       - name: Install Dependencies
-        run: uv pip install . --system
+        run: uv pip install .[optimization] --system
 
       - name: Run tests
         run: |

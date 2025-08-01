@@ -9,6 +9,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "bofire>=0.0.15",
+]
+
+[project.optional-dependencies]
+optimization = [
     "bofire[optimization]>=0.0.15",
     "uvicorn",
     "fastapi",
