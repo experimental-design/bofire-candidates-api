@@ -99,6 +99,11 @@ optimization = [
 name = "bofire-candidates-api"
 source = { editable = "." }
 dependencies = [
+    { name = "bofire" },
+]
+
+[package.optional-dependencies]
+optimization = [
     { name = "bofire", extra = ["optimization"] },
     { name = "fastapi" },
     { name = "pytest" },
@@ -109,13 +114,15 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bofire", extras = ["optimization"], specifier = ">=0.0.15" },
-    { name = "fastapi" },
-    { name = "pytest" },
-    { name = "requests" },
-    { name = "tinydb" },
-    { name = "uvicorn" },
+    { name = "bofire", specifier = ">=0.0.15" },
+    { name = "bofire", extras = ["optimization"], marker = "extra == 'optimization'", specifier = ">=0.0.15" },
+    { name = "fastapi", marker = "extra == 'optimization'" },
+    { name = "pytest", marker = "extra == 'optimization'" },
+    { name = "requests", marker = "extra == 'optimization'" },
+    { name = "tinydb", marker = "extra == 'optimization'" },
+    { name = "uvicorn", marker = "extra == 'optimization'" },
 ]
+provides-extras = ["optimization"]
 
 [[package]]
 name = "botorch"
