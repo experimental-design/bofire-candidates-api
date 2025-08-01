@@ -226,7 +226,6 @@ def mark_failed(
     Returns:
         ProposalStateEnum: The state of the proposal after marking it as failed.
     """
-    print("HELLO")
     proposal = get_proposal_from_db(proposal_id, db)
 
     proposal.last_updated_at = datetime.datetime.now()
