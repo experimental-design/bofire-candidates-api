@@ -1,14 +1,8 @@
-from typing import Optional
-
 import bofire.strategies.api as strategies
-from bofire.data_models.dataframes.api import Candidates, Experiments
-from bofire.data_models.strategies.api import AnyStrategy
-from fastapi import APIRouter, HTTPException
+from bofire.data_models.dataframes.api import Candidates
+from fastapi import HTTPException
 
 from bofire_candidates_api.api_data_models import CandidatesRequest
-
-
-router = APIRouter(prefix="", tags=["candidates"])
 
 
 def generate_candidates(
@@ -45,21 +39,3 @@ def generate_candidates(
                 detail=f"An error occurred. Details: {e}",
             )
     return Candidates.from_pandas(df_candidates, candidate_request.strategy_data.domain)
-
-
-@router.post("/candidates/generate", response_model=Candidates)
-def generate(
-    candidate_request: CandidatesRequest,
-) -> Candidates:
-    """Generate candidates using the specified strategy.
-
-    Args:
-        candidate_request (CandidatesRequest): Request model for generating candidates.
-
-    Returns:
-        Candidates: The generated candidates.
-    """
-    return generate_candidates(
-        candidate_request=candidate_request,
-        i_start=0,
-    )

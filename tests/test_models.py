@@ -5,7 +5,11 @@ from bofire.benchmarks.api import DTLZ2, Himmelblau
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import MoboStrategy, SoboStrategy
 
-from bofire_candidates_api.api_data_models import CandidatesProposal, CandidatesRequest, ProposalStateEnum
+from bofire_candidates_api.api_data_models import (
+    CandidatesProposal,
+    CandidatesRequest,
+    ProposalStateEnum,
+)
 
 
 @pytest.mark.parametrize("data_model", [CandidatesRequest])

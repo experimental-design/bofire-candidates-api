@@ -4,13 +4,12 @@ import multiprocessing as mp
 import time
 from typing import Dict, Optional, Type
 
-import bofire.strategies.api as strategies
 import requests
 from bofire.data_models.dataframes.api import Candidates
 from pydantic import BaseModel, model_validator
 
 from bofire_candidates_api.api_data_models import CandidatesProposal, ProposalStateEnum
-from bofire_candidates_api.routers.candidates import generate_candidates
+from bofire_candidates_api.generate import generate_candidates
 
 
 class Client(BaseModel):
@@ -147,7 +146,7 @@ class Worker(BaseModel):
         candidate_request: Type[CandidatesProposal],
         conn_obj: "mp.connection.Connection",
     ):
-        """ Process a proposal by generating candidates.
+        """Process a proposal by generating candidates.
 
         Args:
             candidate_request (Type[CandidatesProposal]): The proposal to process.
