@@ -5,10 +5,10 @@ from bofire_candidates_api.api_data_models import CandidatesRequest
 from bofire_candidates_api.generate import generate_candidates
 
 
-router = APIRouter(prefix="", tags=["candidates"])
+router = APIRouter(prefix="/candidates", tags=["candidates"])
 
 
-@router.post("/candidates/generate", response_model=Candidates)
+@router.post("/generate", response_model=Candidates)
 def generate(
     candidate_request: CandidatesRequest,
 ) -> Candidates:
