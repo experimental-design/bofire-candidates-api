@@ -33,6 +33,6 @@ jobs:
       - name: Run tests
         run: |
           export ADD_DUMMY_TYPES=True
-          uvicorn --app-dir=app app:app & sleep 10
+          uvicorn --app-dir=app app:app & sleep 30
           pytest
           kill %1
