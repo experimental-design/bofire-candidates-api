@@ -10,34 +10,48 @@ Candidates can be generated via two different ways, either directly at request w
 
 ## Usage
 
+### Installation
+
+To install the full functionality of the package, clone the package and run locally.
+
+```
+pip install bofire_candidates_api[optimization]
+```
+
+### Run
+```bash
+uvicorn --app-dir=app app:app --reload
+```
+
+If you also want to use the asynchronous worker based candidate generation, use the following snippet to start at least one worker:
+
+```bash
+python worker
+```
+
 ### Direct Candidate Generation
 
 In the following it is shown how to generate candidates in the direct way using a post request.
 
+Before running this snippet, make sure to have started the app.
+
 ```python
 import json
-from typing import Optional
 
 import requests
 from bofire.benchmarks.api import Himmelblau
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import (
     AlwaysTrueCondition,
-    AnyStrategy,
     NumberOfExperimentsCondition,
     RandomStrategy,
     SoboStrategy,
     Step,
     StepwiseStrategy,
 )
-from pydantic import BaseModel
 
+from bofire_candidates_api.data_models import CandidatesRequest
 
-class CandidateRequest(BaseModel):
-    strategy_data: AnyStrategy
-    n_candidates: int
-    experiments: Optional[Experiments]
-    pendings: Optional[Candidates]
 
 # generate experimental data from the Himmelblau benchmark
 bench = Himmelblau()
@@ -61,7 +75,7 @@ strategy_data = StepwiseStrategy(
 )
 
 # create the payload
-payload = CandidateRequest(
+payload = CandidatesRequest(
     strategy_data=strategy_data,
     n_candidates=1,
     experiments=Experiments.from_pandas(experiments, bench.domain),
@@ -69,20 +83,21 @@ payload = CandidateRequest(
 )
 
 
-URL = "http://127.0.0.1:8000/candidates"
+URL = "http://127.0.0.1:8000"
 HEADERS = {'accept': 'application/json', 'Content-Type': 'application/json'}
 
 # request candidates
-response = requests.post(url=f"{URL}/generate", data=payload.model_dump_json(), headers=HEADERS)
+response = requests.post(url=f"{URL}/candidates/generate", data=payload.model_dump_json(), headers=HEADERS)
 
 # convert response to a pandas dataframe
-df_candidates =Candidates(**json.loads(response.content)).to_pandas()
-
+df_candidates = Candidates(**json.loads(response.content)).to_pandas()
 ```
 
 ### Worker Based Candidate Generation
 
 The following snippet shows how to use the worker based candidate generation using the same payload as above. The API is storing all necessary information regarding the proposals in a [`TinyDB`](https://tinydb.readthedocs.io/en/latest/) database. **Note that concurrent worker access using multiple users has not been tested yet.**
+
+Before running this snippet, make sure to have started a worker.
 
 ``` python
 import time
@@ -93,7 +108,7 @@ id = json.loads(response.content)["id"]
 
 # poll the state of the proposal
 def get_state(id:int):
-    return requests.get(url=f"{URL}proposals/{id}/state", headers=HEADERS).json()
+    return requests.get(url=f"{URL}/proposals/{id}/state", headers=HEADERS).json()
 
 state = get_state(id)
 
@@ -107,34 +122,4 @@ if state=="FINISHED":
     candidates = Candidates(**response.json()).to_pandas()
 else:
     print(state) # candidate generation was not successful.
-```
-
-
-## Installation
-
-Use the following command to set and run the API locally as well as run the unit tests.
-
-### Setup
-
-```bash
-pip install -r requirements.txt
-```
-
-
-### Run
-```bash
-uvicorn --app-dir=app app:app --reload
-```
-
-If you also want to use the asynchronous worker based candidate generation, use the following snippet to start at least one worker:
-
-```bash
-python worker
-```
-
-
-### Run unit tests
-
-```bash
-pytest
 ```
