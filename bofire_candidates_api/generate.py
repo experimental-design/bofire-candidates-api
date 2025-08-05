@@ -2,7 +2,7 @@ import bofire.strategies.api as strategies
 from bofire.data_models.dataframes.api import Candidates
 from fastapi import HTTPException
 
-from bofire_candidates_api.api_data_models import CandidatesRequest
+from bofire_candidates_api.data_models import CandidatesRequest
 
 
 def generate_candidates(

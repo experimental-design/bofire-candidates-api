@@ -5,7 +5,7 @@ from bofire.data_models.dataframes.api import Candidates
 from fastapi import APIRouter, Depends, HTTPException
 from tinydb import Query, TinyDB
 
-from bofire_candidates_api.api_data_models import (
+from bofire_candidates_api.data_models import (
     CandidatesProposal,
     CandidatesRequest,
     ProposalStateEnum,

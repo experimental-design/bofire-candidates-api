@@ -5,7 +5,7 @@ from bofire.benchmarks.api import DTLZ2, Himmelblau
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import MoboStrategy, SoboStrategy
 
-from bofire_candidates_api.api_data_models import (
+from bofire_candidates_api.data_models import (
     CandidatesProposal,
     CandidatesRequest,
     ProposalStateEnum,
