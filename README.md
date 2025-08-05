@@ -118,7 +118,7 @@ while state in ["CREATED", "CLAIMED"]:
 
 # get the candidates when the worker is finished
 if state=="FINISHED":
-    response = requests.get(url=f"{URL}proposals/{id}/candidates", headers=HEADERS)
+    response = requests.get(url=f"{URL}/proposals/{id}/candidates", headers=HEADERS)
     candidates = Candidates(**response.json()).to_pandas()
 else:
     print(state) # candidate generation was not successful.
