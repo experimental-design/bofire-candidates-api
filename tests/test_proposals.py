@@ -4,7 +4,7 @@ from bofire.benchmarks.api import Himmelblau
 from bofire.data_models.dataframes.api import Candidates
 from bofire.data_models.strategies.api import RandomStrategy
 
-from app.models.proposals import Proposal, ProposalRequest
+from bofire_candidates_api.data_models import CandidatesProposal, CandidatesRequest
 from tests.conftest import Client
 
 
@@ -14,7 +14,7 @@ def test_proposals(client: Client):
 
     FAKE_ID = 9999
 
-    pr = ProposalRequest(
+    pr = CandidatesRequest(
         strategy_data=RandomStrategy(domain=bench.domain),
         n_candidates=5,
         experiments=None,
@@ -22,10 +22,10 @@ def test_proposals(client: Client):
     )
     response = client.post(path="/proposals", request_body=pr.model_dump_json())
     assert response.status_code == 200
-    proposal = Proposal(**json.loads(response.content))
+    proposal = CandidatesProposal(**json.loads(response.content))
 
     # get proposal back
-    loaded_proposal = Proposal(
+    loaded_proposal = CandidatesProposal(
         **json.loads(client.get(path=f"/proposals/{proposal.id}").content)
     )
     # compare them
@@ -42,8 +42,10 @@ def test_proposals(client: Client):
     assert response.status_code == 404
 
     # claim the proposal
-    response = json.loads(client.get(path="/proposals/claim").content)
-    assert response[0] == proposal.id
+    claimed_proposal = CandidatesProposal(
+        **json.loads(client.get(path="/proposals/claim").content)
+    )
+    assert claimed_proposal.id == proposal.id
 
     # get the status again
     status = json.loads(client.get(path=f"/proposals/{proposal.id}/state").content)

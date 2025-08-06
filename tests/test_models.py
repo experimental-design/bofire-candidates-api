@@ -5,11 +5,14 @@ from bofire.benchmarks.api import DTLZ2, Himmelblau
 from bofire.data_models.dataframes.api import Candidates, Experiments
 from bofire.data_models.strategies.api import MoboStrategy, SoboStrategy
 
-from app.models.candidates import CandidateRequest
-from app.models.proposals import Proposal, ProposalRequest, StateEnum
+from bofire_candidates_api.data_models import (
+    CandidatesProposal,
+    CandidatesRequest,
+    ProposalStateEnum,
+)
 
 
-@pytest.mark.parametrize("data_model", [CandidateRequest, ProposalRequest])
+@pytest.mark.parametrize("data_model", [CandidatesRequest])
 def test_invalid_experiments(data_model):
     bench = Himmelblau()
     bench2 = DTLZ2(dim=6)
@@ -23,7 +26,7 @@ def test_invalid_experiments(data_model):
         )
 
 
-@pytest.mark.parametrize("data_model", [CandidateRequest, ProposalRequest])
+@pytest.mark.parametrize("data_model", [CandidatesRequest])
 def test_invalid_pendings(data_model):
     bench = Himmelblau()
     bench2 = DTLZ2(dim=6)
@@ -42,12 +45,12 @@ def test_invalid_candidates():
     bench2 = DTLZ2(dim=6)
     candidates = bench.domain.inputs.sample(5)
     with pytest.raises(ValueError):
-        Proposal(
+        CandidatesProposal(
             strategy_data=MoboStrategy(domain=bench2.domain),
             n_candidates=5,
             experiments=None,
             pendings=None,
-            state=StateEnum.CREATED,
+            state=ProposalStateEnum.CREATED,
             created_at=datetime.datetime.now(),
             last_updated_at=datetime.datetime.now(),
             candidates=Candidates.from_pandas(candidates, bench.domain),
@@ -58,12 +61,12 @@ def test_invalid_number_of_candidates():
     bench = Himmelblau()
     candidates = bench.domain.inputs.sample(5)
     with pytest.raises(ValueError, match="Number of candidates"):
-        Proposal(
+        CandidatesProposal(
             strategy_data=SoboStrategy(domain=bench.domain),
             n_candidates=1,
             experiments=None,
             pendings=None,
-            state=StateEnum.CREATED,
+            state=ProposalStateEnum.CREATED,
             created_at=datetime.datetime.now(),
             last_updated_at=datetime.datetime.now(),
             candidates=Candidates.from_pandas(candidates, bench.domain),

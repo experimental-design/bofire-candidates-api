@@ -11,7 +11,7 @@ from bofire.data_models.strategies.api import (
     StepwiseStrategy,
 )
 
-from app.models.candidates import CandidateRequest
+from bofire_candidates_api.data_models import CandidatesRequest
 from tests.conftest import Client
 
 
@@ -36,7 +36,7 @@ strategy_data = StepwiseStrategy(
 
 
 def test_candidates_missing_experiments(client: Client):
-    cr = CandidateRequest(
+    cr = CandidatesRequest(
         strategy_data=SoboStrategy(domain=bench.domain),
         n_candidates=1,
         experiments=None,
@@ -53,7 +53,7 @@ def test_candidates_missing_experiments(client: Client):
 
 
 def test_candidates_generate(client: Client):
-    cr = CandidateRequest(
+    cr = CandidatesRequest(
         strategy_data=strategy_data,
         n_candidates=2,
         experiments=None,
@@ -69,7 +69,7 @@ def test_candidates_generate(client: Client):
         bench.domain.inputs.get_keys()
     )
 
-    cr = CandidateRequest(
+    cr = CandidatesRequest(
         strategy_data=strategy_data,
         n_candidates=1,
         experiments=Experiments.from_pandas(experiments, bench.domain),

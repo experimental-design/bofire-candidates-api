@@ -1,6 +1,0 @@
-bofire[optimization]>=0.0.15
-uvicorn
-fastapi
-pytest
-requests
-tinydb

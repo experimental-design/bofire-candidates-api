@@ -8,10 +8,10 @@ from bofire.data_models.strategies.api import AnyStrategy
 from pydantic import Field, model_validator
 
 
-class ProposalRequest(BaseModel):
+class CandidatesRequest(BaseModel):
     """Request model for generating candidates."""
 
-    strategy_data: AnyStrategy = Field(description="BoFire strategy data")
+    strategy_data: AnyStrategy = Field(description="Strategy data model")
     n_candidates: int = Field(
         default=1, gt=0, description="Number of candidates to generate"
     )
@@ -20,6 +20,9 @@ class ProposalRequest(BaseModel):
     )
     pendings: Optional[Candidates] = Field(
         default=None, description="Candidates that are pending to be executed"
+    )
+    n_restarts: int = Field(
+        default=1, ge=0, description="Number of restarts for the strategy on failure."
     )
 
     @model_validator(mode="after")
@@ -33,11 +36,13 @@ class ProposalRequest(BaseModel):
     def validate_pendings(self):
         """Validates that pendings are None."""
         if self.pendings is not None:
-            raise ValueError("Pendings must be None for proposals.")
+            self.strategy_data.domain.validate_candidates(
+                self.pendings.to_pandas(), only_inputs=True
+            )
         return self
 
 
-class StateEnum(str, Enum):
+class ProposalStateEnum(str, Enum):
     """Enum for the state of a proposal."""
 
     CREATED = "CREATED"
@@ -46,7 +51,7 @@ class StateEnum(str, Enum):
     FINISHED = "FINISHED"
 
 
-class Proposal(ProposalRequest):
+class CandidatesProposal(CandidatesRequest):
     """Model for a candidates proposal."""
 
     id: Optional[int] = Field(default=None, description="Proposal ID")
@@ -61,8 +66,8 @@ class Proposal(ProposalRequest):
         default_factory=datetime.datetime.now,
         description="Timestamp when the proposal was last updated",
     )
-    state: StateEnum = Field(
-        default=StateEnum.CREATED, description="State of the proposal"
+    state: ProposalStateEnum = Field(
+        default=ProposalStateEnum.CREATED, description="State of the proposal"
     )
     error_message: Optional[str] = Field(
         default=None, description="Error message if the proposal failed"

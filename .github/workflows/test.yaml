@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11' ]
+        python-version: ['3.11', '3.12', '3.13' ]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -28,11 +28,11 @@ jobs:
           enable-cache: true
 
       - name: Install Dependencies
-        run: uv pip install -r requirements.txt --system
+        run: uv pip install .[optimization] --system
 
       - name: Run tests
         run: |
           export ADD_DUMMY_TYPES=True
-          uvicorn --app-dir=app app:app & sleep 10
+          uvicorn --app-dir=app app:app & sleep 30
           pytest
           kill %1

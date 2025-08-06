@@ -1,7 +1,7 @@
 import logging
 import os
 
-from worker import Client, Worker
+from bofire_candidates_api.worker import Client, Worker
 
 
 LOG_LEVELS = {
