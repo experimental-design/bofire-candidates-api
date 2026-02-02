@@ -15,6 +15,12 @@ async def redirect():
     return RedirectResponse(url="/docs")
 
 
+@app.get("/health", response_model=dict[str, str], tags=["health"])
+def health() -> dict[str, str]:
+    """Health check endpoint for liveness/readiness probes."""
+    return {"status": "ok"}
+
+
 app.include_router(candidates_router)
 app.include_router(proposals_router)
 
