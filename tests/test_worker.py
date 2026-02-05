@@ -30,6 +30,8 @@ def test_client(client: Client):
     # test claim proposal
     client.post(path="/proposals", request_body=pr.model_dump_json())
     proposal = worker_client.claim_proposal()
+    assert proposal is not None, "Expected a proposal to be claimed"
+    assert proposal.id is not None, "Claimed proposal must have an ID"
     assert proposal.n_candidates == 5
     assert isinstance(proposal.strategy_data, RandomStrategy)
     assert proposal.experiments is None

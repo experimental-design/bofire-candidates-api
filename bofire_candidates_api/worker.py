@@ -2,7 +2,8 @@ import json
 import logging
 import multiprocessing as mp
 import time
-from typing import Dict, Optional, Type
+from multiprocessing.connection import Connection
+from typing import Dict, Optional
 
 import requests
 from bofire.data_models.dataframes.api import Candidates
@@ -143,14 +144,14 @@ class Worker(BaseModel):
 
     @staticmethod
     def process_proposal(
-        candidate_request: Type[CandidatesProposal],
-        conn_obj: "mp.connection.Connection",
+        candidate_request: CandidatesProposal,
+        conn_obj: Connection,
     ):
         """Process a proposal by generating candidates.
 
         Args:
-            candidate_request (Type[CandidatesProposal]): The proposal to process.
-            conn_obj (mp.connection.Connection): The connection object to send the results to.
+            candidate_request (CandidatesProposal): The proposal to process.
+            conn_obj (Connection): The connection object to send the results to.
         """
         try:
             msg = generate_candidates(candidate_request)
@@ -173,6 +174,7 @@ class Worker(BaseModel):
             self.sleep(self.job_check_interval, msg="No proposal to work on.")
             return
 
+        assert proposal.id is not None, "Claimed proposal must have an ID"
         logging.info(f"Claimed proposal {proposal.id}")
 
         try:
