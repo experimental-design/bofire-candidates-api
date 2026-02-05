@@ -5,9 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bofire-candidates-api"
 dynamic = ["version"]
-description = "Add your description here"
+description = "FastAPI service for generating optimization candidates using BoFire"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "bofire>=0.0.15",
 ]
@@ -21,6 +21,20 @@ optimization = [
     "requests",
     "tinydb",
 ]
+dev = [
+    "bofire[optimization]>=0.0.15",
+    "uvicorn",
+    "fastapi",
+    "pytest",
+    "requests",
+    "tinydb",
+    "httpx",
+    "pyright",
+    "mkdocs",
+    "mkdocs-material",
+    "pre-commit",
+    "ruff",
+]
 
 [tool.setuptools]
 packages = ["bofire_candidates_api"]
@@ -29,3 +43,32 @@ packages = ["bofire_candidates_api"]
 version_scheme = "guess-next-dev"
 local_scheme = "node-and-date"
 fallback_version = "0.0.1"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+output-format = "concise"
+
+[tool.ruff.lint]
+select = ["B", "C", "E", "F", "W", "I"]
+ignore = [
+    "E501",  # don't enforce for comments and docstrings
+    "B017",  # required for tests
+    "B027",  # required for optional _tell method
+    "B028",
+    "B904",
+    "B905",
+]
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+lines-after-imports = 2
+
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+reportMissingImports = true
+reportMissingTypeStubs = false
