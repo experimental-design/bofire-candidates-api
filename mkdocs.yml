@@ -1,0 +1,32 @@
+site_name: BoFire Candidates API
+site_description: FastAPI service for generating optimization candidates using BoFire
+repo_url: https://github.com/experimental-design/bofire-candidates-api
+
+# Allow opening docs locally without a server
+use_directory_urls: false
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Getting Started: index.md
+  - Developer Workflow: developer-workflow.md
+  - Architecture: architecture.md
+  - CI Overview: ci.md
+  - Troubleshooting: troubleshooting.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
