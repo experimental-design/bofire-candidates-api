@@ -67,6 +67,17 @@ lines-after-imports = 2
 [tool.ruff.lint.mccabe]
 max-complexity = 18
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests requiring a live server (deselect with '-m \"not integration\"')"
+]
+addopts = "-m 'not integration'"
+filterwarnings = [
+    "ignore::DeprecationWarning:pydantic.*:",
+    "ignore::DeprecationWarning:botorch.*:",
+    "ignore::UserWarning:bofire.*:",
+]
+
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "basic"
