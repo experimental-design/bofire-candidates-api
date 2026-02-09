@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, List
+from typing import Annotated, Any, List, cast
 
 from bofire.data_models.dataframes.api import Candidates
 from fastapi import APIRouter, Depends, HTTPException
@@ -52,7 +52,7 @@ def get_proposal_from_db(
     dict_proposal = db.get(doc_id=proposal_id)
     if dict_proposal is None:
         raise HTTPException(status_code=404, detail="Proposal not found")
-    return CandidatesProposal(**dict_proposal)
+    return CandidatesProposal(**cast(dict[str, Any], dict_proposal))
 
 
 @router.post("", response_model=CandidatesProposal)
@@ -69,12 +69,12 @@ def create_proposal(
     Returns:
         CandidatesProposal: The created proposal.
     """
-    proposal = CandidatesProposal(**proposal_request.model_dump())
+    proposal = CandidatesProposal(**cast(dict[str, Any], proposal_request.model_dump()))
     id = db.insert(proposal.model_dump())
 
     # Update the db entry and proposal with the new ID
     db.update({"id": id}, doc_ids=[id])
-    updated_proposal = CandidatesProposal(**db.get(doc_id=id))
+    updated_proposal = CandidatesProposal(**cast(dict[str, Any], db.get(doc_id=id)))
     return updated_proposal
 
 
@@ -107,7 +107,8 @@ def claim_proposal(db: Annotated[TinyDB, Depends(get_db)]) -> CandidatesProposal
     query_list = db.search(Query().state == ProposalStateEnum.CREATED)
     if len(query_list) == 0:
         raise HTTPException(status_code=404, detail="No proposals to claim")
-    proposal = CandidatesProposal(**query_list[0])
+    proposal = CandidatesProposal(**cast(dict[str, Any], query_list[0]))
+    assert proposal.id is not None, "Proposal ID should not be None after DB query"
     db.update(
         {
             "state": ProposalStateEnum.CLAIMED,
@@ -115,7 +116,9 @@ def claim_proposal(db: Annotated[TinyDB, Depends(get_db)]) -> CandidatesProposal
         },
         doc_ids=[proposal.id],
     )
-    updated_proposal = CandidatesProposal(**db.get(doc_id=proposal.id))
+    updated_proposal = CandidatesProposal(
+        **cast(dict[str, Any], db.get(doc_id=proposal.id))
+    )
     return updated_proposal
 
 
